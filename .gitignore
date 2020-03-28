@@ -13,6 +13,6 @@
 *.old
 *.db
 *.files
-*/src/
-*/pkg/
+src/
+pkg/
 gamescope/
