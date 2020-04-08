@@ -15,9 +15,9 @@ fi
 arch=('x86_64')
 url="https://github.com/Plagman/gamescope"
 license=('BSD 2-Clause "Simplified" License')
-makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers')
+makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers' 'wayland-protocols>=1.17')
 pkgdesc="gamescope: the micro-compositor formerly known as steamcompmgr"
-_depends_array="wayland opengl-driver xorg-server-xwayland libdrm libinput libxkbcommon libxcomposite libcap libxcb libpng glslang"
+_depends_array="wayland opengl-driver xorg-server-xwayland libdrm libinput libxkbcommon libxcomposite libcap libxcb libpng glslang libxrender libxtst vulkan-icd-loader sdl2"
 if [ "$_local_wlroots" != "true" ]; then
   _depends_array="${_depends_array} wlroots"
 fi
