@@ -57,7 +57,7 @@ package() {
      
     provides=(gamescope=$pkgver)
      
-    msg "Removing unnecessary wlroots files"
+    msg2 "Removing unnecessary wlroots files"
     rm -rfv "${pkgdir}"/usr/include
     rm -rfv "${pkgdir}"/usr/lib/libwlroots*
     rm -fv  "${pkgdir}"/usr/lib/pkgconfig/wlroots.pc
