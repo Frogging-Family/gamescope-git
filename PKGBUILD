@@ -15,13 +15,10 @@ fi
 arch=('x86_64')
 url="https://github.com/Plagman/gamescope"
 license=('BSD 2-Clause "Simplified" License')
-makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers' 'wayland-protocols>=1.17')
 pkgdesc="gamescope: the micro-compositor formerly known as steamcompmgr"
-_depends_array="wayland opengl-driver xorg-server-xwayland libdrm libinput libxkbcommon libxcomposite libcap libxcb libpng glslang libxrender libxtst vulkan-icd-loader sdl2"
-if [ "$_local_wlroots" != "true" ]; then
-  _depends_array="${_depends_array} wlroots"
-fi
-depends=(${_depends_array})
+
+makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers' 'wayland-protocols>=1.17')
+depends=(wayland opengl-driver xorg-server-xwayland libdrm libinput libxkbcommon libxcomposite libcap libxcb libpng glslang libxrender libxtst vulkan-icd-loader sdl2)
 conflicts=('gamescope')
 
 # custom commit to pass to git
@@ -56,17 +53,14 @@ build() {
 }
 
 package() {
-     DESTDIR="$pkgdir" ninja -C _build install
-     if [ "$_local_wlroots" != "true" ]; then
-       provides=(gamescope=$pkgver)
-       rm -rf "${pkgdir}"/usr/include
-       rm -rf "${pkgdir}"/usr/lib/libwlroots*
-       rm -f "${pkgdir}"/usr/lib/pkgconfig/wlroots.pc
-     else
-       provides=("gamescope=$pkgver" "wlroots")
-       conflicts=("wlroots")
-       warning "This configuration will conflict with wlroots package. If that's not what you want, please check your customization.cfg or external config"
-     fi
+    DESTDIR="$pkgdir" ninja -C _build install
+     
+    provides=(gamescope=$pkgver)
+     
+    msg "Removing unnecessary wlroots files"
+    rm -rfv "${pkgdir}"/usr/include
+    rm -rfv "${pkgdir}"/usr/lib/libwlroots*
+    rm -fv  "${pkgdir}"/usr/lib/pkgconfig/wlroots.pc
 
-     install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 "${srcdir}/${_pkgbase}/LICENSE"
+    install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 "${srcdir}/${_pkgbase}/LICENSE"
 }
