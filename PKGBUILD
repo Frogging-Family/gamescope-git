@@ -2,9 +2,9 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.6.1.r0.gde16a27
+pkgver=3.6.1.r4.gfc72bda
 pkgrel=1
-_where=$PWD # track basedir as different Arch based distros are moving srcdir around
+_where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 source "$_where"/customization.cfg
 
 # Load external configuration file if present. Available variable values will overwrite customization.cfg ones.
@@ -16,6 +16,15 @@ arch=('x86_64')
 url="https://github.com/Plagman/gamescope"
 license=('BSD 2-Clause "Simplified" License')
 pkgdesc="gamescope: the micro-compositor formerly known as steamcompmgr"
+
+exit_cleanup() {
+  # Prevent subproject conflicts
+  rm -rf "$_where/src/$_pkgbase"
+
+  remove_deps
+
+  msg2 "Cleanup done"
+}
 
 makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers' 'wayland-protocols>=1.17')
 depends=(wayland opengl-driver xorg-server-xwayland libdrm libinput libxkbcommon libxcomposite libcap libxcb libpng glslang libxrender libxtst vulkan-icd-loader sdl2)
@@ -64,3 +73,5 @@ package() {
 
     install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 "${srcdir}/${_pkgbase}/LICENSE"
 }
+
+trap exit_cleanup EXIT
