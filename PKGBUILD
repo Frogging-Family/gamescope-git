@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.6.1.r23.g5ab3129
+pkgver=3.6.2.r0.g44023e2
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 source "$_where"/customization.cfg
@@ -40,6 +40,53 @@ md5sums=('SKIP')
 sha512sums=('SKIP')
 options=('staticlibs')
 
+user_patcher() {
+	# To patch the user because all your base are belong to us
+	local _patches=("$_where"/*."${_userpatch_ext}revert")
+	if [ ${#_patches[@]} -ge 2 ] || [ -e "${_patches}" ]; then
+	  if [ "$_user_patches_no_confirm" != "true" ]; then
+	    msg2 "Found ${#_patches[@]} 'to revert' userpatches for ${_userpatch_target}:"
+	    printf '%s\n' "${_patches[@]}"
+	    read -rp "Do you want to install it/them? - Be careful with that ;)"$'\n> N/y : ' _CONDITION;
+	  fi
+	  if [ "$_CONDITION" == "y" ] || [ "$_user_patches_no_confirm" == "true" ]; then
+	    for _f in "${_patches[@]}"; do
+	      if [ -e "${_f}" ]; then
+	        msg2 "######################################################"
+	        msg2 ""
+	        msg2 "Reverting your own ${_userpatch_target} patch ${_f}"
+	        msg2 ""
+	        msg2 "######################################################"
+	        patch -Np1 -R < "${_f}"
+	        echo "Reverted your own patch ${_f}" >> "$_where"/last_build_config.log
+	      fi
+	    done
+	  fi
+	fi
+
+	_patches=("$_where"/*."${_userpatch_ext}patch")
+	if [ ${#_patches[@]} -ge 2 ] || [ -e "${_patches}" ]; then
+	  if [ "$_user_patches_no_confirm" != "true" ]; then
+	    msg2 "Found ${#_patches[@]} userpatches for ${_userpatch_target}:"
+	    printf '%s\n' "${_patches[@]}"
+	    read -rp "Do you want to install it/them? - Be careful with that ;)"$'\n> N/y : ' _CONDITION;
+	  fi
+	  if [ "$_CONDITION" == "y" ] || [ "$_user_patches_no_confirm" == "true" ]; then
+	    for _f in "${_patches[@]}"; do
+	      if [ -e "${_f}" ]; then
+	        msg2 "######################################################"
+	        msg2 ""
+	        msg2 "Applying your own ${_userpatch_target} patch ${_f}"
+	        msg2 ""
+	        msg2 "######################################################"
+	        patch -Np1 < "${_f}"
+	        echo "Applied your own patch ${_f}" >> "$_where"/last_build_config.log
+	      fi
+	    done
+	  fi
+	fi
+}
+
 pkgver() {
     cd ${_pkgbase}
     git describe --long --tags --always | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^v//'
@@ -50,6 +97,13 @@ prepare() {
         rm -rf _build
     fi
     mkdir _build
+
+    # user patches
+    cd ${_pkgbase}
+    _userpatch_target="gamescope"
+    _userpatch_ext="mygamescope"
+    user_patcher
+    cd "$_where"
 }
 
 build() {
