@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.6.2.r0.g44023e2
+pkgver=3.9.r12.g94f78d1
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 source "$_where"/customization.cfg
@@ -108,6 +108,8 @@ prepare() {
 
 build() {
     cd ${_pkgbase}
+
+    git submodule update --init --recursive
 
     meson \
       --buildtype release \
