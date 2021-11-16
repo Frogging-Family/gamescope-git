@@ -20,7 +20,7 @@ pkgdesc="gamescope: the micro-compositor formerly known as steamcompmgr"
 exit_cleanup() {
   # Prevent subproject conflicts
   rm -rf "$_where/src/$_pkgbase"
-  rm -rf "$_where/*.mygamescopepatch"
+  rm -rf "$_where"/*.mygamescopepatch
 
   remove_deps
 
@@ -99,6 +99,8 @@ prepare() {
     fi
     mkdir _build
 
+    ( cd "${_pkgbase}" && git reset --hard HEAD && git clean -xdf )
+
     # FSR support from elgq - https://github.com/elgq/gamescope/tree/fsr
     if [ "$_gamescope_fsr" = "true" ]; then
       ( cd "$_where" && wget -O "fsr.mygamescopepatch" "https://github.com/Plagman/gamescope/compare/master...elgq:fsr.patch" )
@@ -114,7 +116,6 @@ prepare() {
 
 build() {
     cd ${_pkgbase}
-
     git submodule update --init --recursive
 
     meson \
