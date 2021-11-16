@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.9.r12.g94f78d1
+pkgver=3.9.5.r19.ge8dab4e
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 source "$_where"/customization.cfg
@@ -20,6 +20,7 @@ pkgdesc="gamescope: the micro-compositor formerly known as steamcompmgr"
 exit_cleanup() {
   # Prevent subproject conflicts
   rm -rf "$_where/src/$_pkgbase"
+  rm -rf "$_where/*.mygamescopepatch"
 
   remove_deps
 
@@ -97,6 +98,11 @@ prepare() {
         rm -rf _build
     fi
     mkdir _build
+
+    # FSR support from elgq - https://github.com/elgq/gamescope/tree/fsr
+    if [ "$_gamescope_fsr" = "true" ]; then
+      ( cd "$_where" && wget -O "fsr.mygamescopepatch" "https://github.com/Plagman/gamescope/compare/master...elgq:fsr.patch" )
+    fi
 
     # user patches
     cd ${_pkgbase}
