@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.9.5.r19.ge8dab4e
+pkgver=3.11.28.beta2.r2.g6d0c84d
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 source "$_where"/customization.cfg
@@ -100,11 +100,6 @@ prepare() {
     mkdir _build
 
     ( cd "${_pkgbase}" && git reset --hard HEAD && git clean -xdf )
-
-    # FSR support from elgq - https://github.com/elgq/gamescope/tree/fsr
-    if [ "$_gamescope_fsr" = "true" ]; then
-      ( cd "$_where" && wget -O "fsr.mygamescopepatch" "https://github.com/Plagman/gamescope/compare/master...elgq:fsr.patch" )
-    fi
 
     # user patches
     cd ${_pkgbase}
