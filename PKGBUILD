@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.11.28.beta2.r2.g6d0c84d
+pkgver=3.11.51.r108.geff0ac0
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 source "$_where"/customization.cfg
@@ -20,7 +20,7 @@ pkgdesc="gamescope: the micro-compositor formerly known as steamcompmgr"
 exit_cleanup() {
   # Prevent subproject conflicts
   rm -rf "$_where/src/$_pkgbase"
-  rm -rf "$_where"/*.mygamescopepatch
+  #rm -rf "$_where"/*.mygamescopepatch
 
   remove_deps
 
@@ -100,21 +100,25 @@ prepare() {
     mkdir _build
 
     ( cd "${_pkgbase}" && git reset --hard HEAD && git clean -xdf )
-
-    # user patches
-    cd ${_pkgbase}
-    _userpatch_target="gamescope"
-    _userpatch_ext="mygamescope"
-    user_patcher
-    cd "$_where"
 }
 
 build() {
     cd ${_pkgbase}
     git submodule update --init --recursive
 
-    meson \
+    # user patches
+    #cd ${_pkgbase}
+    _userpatch_target="gamescope"
+    _userpatch_ext="mygamescope"
+    user_patcher
+    #cd "$_where"
+
+    arch-meson \
       --buildtype release \
+      --force-fallback-for=wlroots,libliftoff,stb,libdisplay-info \
+      -Dpipewire=enabled \
+      -Dwlroots:backends=drm,libinput,x11 \
+      -Dwlroots:renderers=gles2,vulkan \
       --prefix /usr \
       ${srcdir}/_build
 }
