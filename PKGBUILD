@@ -113,9 +113,9 @@ build() {
     user_patcher
     #cd "$_where"
 
-    arch-meson \
+    meson \
       --buildtype release \
-      --force-fallback-for=wlroots,libliftoff,stb,libdisplay-info \
+      --force-fallback-for=vkroots,wlroots,libliftoff,stb,libdisplay-info \
       -Dpipewire=enabled \
       -Dwlroots:backends=drm,libinput,x11 \
       -Dwlroots:renderers=gles2,vulkan \
