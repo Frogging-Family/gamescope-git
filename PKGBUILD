@@ -2,10 +2,12 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.11.51.r108.geff0ac0
+pkgver=3.11.51.r120.gd6c1df4
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
-source "$_where"/customization.cfg
+if [ -e "$_where"/customization.cfg ]; then
+  source "$_where"/customization.cfg
+fi
 
 # Load external configuration file if present. Available variable values will overwrite customization.cfg ones.
 if [ -e "$_EXT_CONFIG_PATH" ]; then
