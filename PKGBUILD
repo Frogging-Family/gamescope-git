@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.11.51.r120.gd6c1df4
+pkgver=3.12.0.beta3.r31.g156660c
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 if [ -e "$_where"/customization.cfg ]; then
@@ -30,7 +30,7 @@ exit_cleanup() {
 }
 
 makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers' 'wayland-protocols>=1.17')
-depends=(wayland opengl-driver xorg-server-xwayland pipewire libdrm libinput libxkbcommon libxcomposite libxmu libcap libxcb libpng glslang libxrender libxtst libxres vulkan-icd-loader sdl2 xcb-util-renderutil xcb-util-wm seatd)
+depends=(wayland opengl-driver xorg-server-xwayland pipewire libdrm libinput libxkbcommon libxcomposite libxmu libcap libxcb libpng glslang libxrender libxtst libxres vulkan-icd-loader sdl2 xcb-util-renderutil xcb-util-wm seatd benchmark)
 conflicts=('gamescope')
 
 # custom commit to pass to git
@@ -38,7 +38,7 @@ if [ -n "$_gamescope_commit" ]; then
   _gamescope_commit="#commit=${_gamescope_commit}"
 fi
 
-source=("git+https://github.com/Plagman/gamescope.git${_gamescope_commit}")
+source=("git+https://github.com/ValveSoftware/gamescope.git${_gamescope_commit}")
 md5sums=('SKIP')
 sha512sums=('SKIP')
 options=('staticlibs')
@@ -121,6 +121,8 @@ build() {
       -Dpipewire=enabled \
       -Dwlroots:backends=drm,libinput,x11 \
       -Dwlroots:renderers=gles2,vulkan \
+      -Dwlroots:werror=false \
+      -Dlibliftoff:werror=false \
       --prefix /usr \
       ${srcdir}/_build
 }
