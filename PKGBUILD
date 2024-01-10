@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.12.0.beta3.r31.g156660c
+pkgver=3.13.19.r26.g20cac0d
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 if [ -e "$_where"/customization.cfg ]; then
@@ -30,7 +30,7 @@ exit_cleanup() {
 }
 
 makedepends=('git' 'meson' 'ninja' 'cmake' 'pixman' 'pkgconf' 'vulkan-headers' 'wayland-protocols>=1.17')
-depends=(wayland opengl-driver xorg-server-xwayland pipewire libdrm libinput libxkbcommon libxcomposite libxmu libcap libxcb libpng glslang libxrender libxtst libxres vulkan-icd-loader sdl2 xcb-util-renderutil xcb-util-wm seatd benchmark)
+depends=(wayland opengl-driver xorg-server-xwayland pipewire libdrm libinput libavif libxkbcommon libxcomposite libxmu libcap libxcb libpng glslang libxrender libxtst libxres vulkan-icd-loader sdl2 xcb-util-renderutil xcb-util-wm seatd benchmark)
 conflicts=('gamescope')
 
 # custom commit to pass to git
@@ -108,12 +108,17 @@ build() {
     cd ${_pkgbase}
     git submodule update --init --recursive
 
+    # Workaround for erroneous libdisplay-info submodule in the tree
+    ( cd subprojects/libdisplay-info && git checkout 92b031749c0fe84ef5cdf895067b84a829920e25  )
+
     # user patches
     #cd ${_pkgbase}
     _userpatch_target="gamescope"
     _userpatch_ext="mygamescope"
     user_patcher
     #cd "$_where"
+
+    export LDFLAGS="$LDFLAGS -lrt"
 
     meson \
       --buildtype release \
