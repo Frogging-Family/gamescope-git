@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.13.19.r26.g20cac0d
+pkgver=3.14.2.r15.ge48bfc8
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 if [ -e "$_where"/customization.cfg ]; then
@@ -109,7 +109,10 @@ build() {
     git submodule update --init --recursive
 
     # Workaround for erroneous libdisplay-info submodule in the tree
-    ( cd subprojects/libdisplay-info && git checkout 92b031749c0fe84ef5cdf895067b84a829920e25  )
+    #( cd subprojects/libdisplay-info && git checkout 92b031749c0fe84ef5cdf895067b84a829920e25  )
+
+    # Use Arch's libdisplay-info
+    rm -rf subprojects/libdisplay-info
 
     # user patches
     #cd ${_pkgbase}
@@ -118,11 +121,9 @@ build() {
     user_patcher
     #cd "$_where"
 
-    export LDFLAGS="$LDFLAGS -lrt"
-
     meson \
       --buildtype release \
-      --force-fallback-for=vkroots,wlroots,libliftoff,stb,libdisplay-info \
+      -Dforce_fallback_for=stb \
       -Dpipewire=enabled \
       -Dwlroots:backends=drm,libinput,x11 \
       -Dwlroots:renderers=gles2,vulkan \
