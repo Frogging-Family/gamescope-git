@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.14.2.r15.ge48bfc8
+pkgver=3.14.13.r28.g0d3866d
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 if [ -e "$_where"/customization.cfg ]; then
@@ -123,7 +123,7 @@ build() {
 
     meson \
       --buildtype release \
-      -Dforce_fallback_for=stb \
+      -Dforce_fallback_for=stb,libliftoff,vkroots \
       -Dpipewire=enabled \
       -Dwlroots:backends=drm,libinput,x11 \
       -Dwlroots:renderers=gles2,vulkan \
@@ -142,6 +142,9 @@ package() {
     rm -rfv "${pkgdir}"/usr/include
     rm -rfv "${pkgdir}"/usr/lib/libwlroots*
     rm -fv  "${pkgdir}"/usr/lib/pkgconfig/wlroots.pc
+
+    rm -rfv "${pkgdir}"/usr/lib/libliftoff*
+    rm -fv  "${pkgdir}"/usr/lib/pkgconfig/libliftoff.pc
 
     install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 "${srcdir}/${_pkgbase}/LICENSE"
 }
