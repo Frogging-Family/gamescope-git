@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.14.13.r28.g0d3866d
+pkgver=3.14.22.r5.gb44ea3c
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 if [ -e "$_where"/customization.cfg ]; then
@@ -38,9 +38,22 @@ if [ -n "$_gamescope_commit" ]; then
   _gamescope_commit="#commit=${_gamescope_commit}"
 fi
 
-source=("git+https://github.com/ValveSoftware/gamescope.git${_gamescope_commit}")
-md5sums=('SKIP')
-sha512sums=('SKIP')
+source=("git+https://github.com/ValveSoftware/gamescope.git${_gamescope_commit}"
+        'git+https://github.com/Joshua-Ashton/wlroots.git'
+        'git+https://gitlab.freedesktop.org/emersion/libliftoff.git'
+        'git+https://github.com/Joshua-Ashton/vkroots.git'
+        'git+https://gitlab.freedesktop.org/emersion/libdisplay-info.git'
+        'git+https://github.com/ValveSoftware/openvr.git'
+        'git+https://github.com/Joshua-Ashton/reshade.git'
+        'git+https://github.com/KhronosGroup/SPIRV-Headers.git')
+md5sums=('SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP')
 options=('staticlibs')
 
 user_patcher() {
@@ -106,13 +119,37 @@ prepare() {
 
 build() {
     cd ${_pkgbase}
-    git submodule update --init --recursive
+
+    meson subprojects download
+
+    git submodule init subprojects/wlroots
+    git config submodule.subprojects/wlroots.url ../wlroots
+
+    git submodule init subprojects/libliftoff
+    git config submodule.subprojects/libliftoff.url ../libliftoff
+
+    git submodule init subprojects/vkroots
+    git config submodule.subprojects/vkroots.url ../vkroots
+
+    git submodule init subprojects/libdisplay-info
+    git config submodule.subprojects/libdisplay-info.url ../libdisplay-info
+
+    git submodule init subprojects/openvr
+    git config submodule.subprojects/openvr.url ../openvr
+
+    git submodule init src/reshade
+    git config submodule.src/reshade.url ../reshade
+
+    git submodule init thirdparty/SPIRV-Headers
+    git config submodule.thirdparty/SPIRV-Headers.url ../SPIRV-Headers
+
+    git -c protocol.file.allow=always submodule update
 
     # Workaround for erroneous libdisplay-info submodule in the tree
     #( cd subprojects/libdisplay-info && git checkout 92b031749c0fe84ef5cdf895067b84a829920e25  )
 
     # Use Arch's libdisplay-info
-    rm -rf subprojects/libdisplay-info
+    #rm -rf subprojects/libdisplay-info
 
     # user patches
     #cd ${_pkgbase}
@@ -123,13 +160,8 @@ build() {
 
     meson \
       --buildtype release \
-      -Dforce_fallback_for=stb,libliftoff,vkroots \
+      -Dforce_fallback_for=stb,wlroots,vkroots,libliftoff,glm,libdisplay-info \
       -Dpipewire=enabled \
-      -Dwlroots:backends=drm,libinput,x11 \
-      -Dwlroots:renderers=gles2,vulkan \
-      -Dwlroots:werror=false \
-      -Dlibliftoff:werror=false \
-      --prefix /usr \
       ${srcdir}/_build
 }
 
