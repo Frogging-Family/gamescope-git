@@ -2,7 +2,7 @@
 
 _pkgbase=gamescope
 pkgname=${_pkgbase}-git
-pkgver=3.14.22.r5.gb44ea3c
+pkgver=3.16.20.r4.g2f9d9e3e
 pkgrel=1
 _where="$PWD" # track basedir as different Arch based distros are moving srcdir around
 if [ -e "$_where"/customization.cfg ]; then
@@ -45,8 +45,10 @@ source=("git+https://github.com/ValveSoftware/gamescope.git${_gamescope_commit}"
         'git+https://gitlab.freedesktop.org/emersion/libdisplay-info.git'
         'git+https://github.com/ValveSoftware/openvr.git'
         'git+https://github.com/Joshua-Ashton/reshade.git'
+        'git+https://github.com/Joshua-Ashton/GamescopeShaders.git#tag=v0.1'
         'git+https://github.com/KhronosGroup/SPIRV-Headers.git')
 md5sums=('SKIP'
+         'SKIP'
          'SKIP'
          'SKIP'
          'SKIP'
@@ -118,6 +120,8 @@ prepare() {
 }
 
 build() {
+    export CMAKE_POLICY_VERSION_MINIMUM=3.5
+
     cd ${_pkgbase}
 
     meson subprojects download
@@ -166,19 +170,13 @@ build() {
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C _build install
-     
-    provides=(gamescope=$pkgver)
-     
-    msg2 "Removing unnecessary wlroots files"
-    rm -rfv "${pkgdir}"/usr/include
-    rm -rfv "${pkgdir}"/usr/lib/libwlroots*
-    rm -fv  "${pkgdir}"/usr/lib/pkgconfig/wlroots.pc
+    install -d "$pkgdir"/usr/share/gamescope/reshade
+    cp -r "$srcdir"/GamescopeShaders/* "$pkgdir"/usr/share/gamescope/reshade/
+    chmod -R 755 "$pkgdir"/usr/share/gamescope
 
-    rm -rfv "${pkgdir}"/usr/lib/libliftoff*
-    rm -fv  "${pkgdir}"/usr/lib/pkgconfig/libliftoff.pc
+    meson install -C _build --skip-subprojects --destdir="${pkgdir}"
 
-    install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 "${srcdir}/${_pkgbase}/LICENSE"
+    install -Dm 644 "${srcdir}/$_pkgbase/LICENSE" -t "${pkgdir}/usr/share/licenses/$_pkgbase/"
 }
 
 trap exit_cleanup EXIT
